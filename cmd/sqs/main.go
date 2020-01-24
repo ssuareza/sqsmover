@@ -19,7 +19,8 @@ import (
 var (
 	sourceQueue      = kingpin.Flag("source", "Source queue to move messages from").Short('s').Required().String()
 	destinationQueue = kingpin.Flag("destination", "Destination queue to move messages to").Short('d').Required().String()
-	region           = kingpin.Flag("region", "AWS Region for source and destination queues").Short('r').Default("us-west-2").String()
+	profile          = kingpin.Flag("profile", "AWS Profile for source and destination queues").Short('p').Default("default").String()
+	region           = kingpin.Flag("region", "AWS Region for source and destination queues").Short('r').Default("us-east-1").String()
 )
 
 func main() {
@@ -31,12 +32,19 @@ func main() {
 	kingpin.UsageTemplate(kingpin.CompactUsageTemplate)
 	kingpin.Parse()
 
-	sess, err := session.NewSessionWithOptions(
-		session.Options{
-			Config:            aws.Config{Region: aws.String(*region)},
-			SharedConfigState: session.SharedConfigEnable,
+	// sess, err := session.NewSessionWithOptions(
+	// 	session.Options{
+	// 		Config:            aws.Config{Region: aws.String(*region)},
+	// 		SharedConfigState: session.SharedConfigEnable,
+	// 	},
+	// )
+	sess, err := session.NewSessionWithOptions(session.Options{
+		Profile: *profile,
+		Config: aws.Config{
+			Region: aws.String(*region),
 		},
-	)
+		SharedConfigState: session.SharedConfigEnable,
+	})
 
 	if err != nil {
 		log.Error(color.New(color.FgRed).Sprintf("Unable to create AWS session for region \r\n", *region))
