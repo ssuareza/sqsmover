@@ -12,14 +12,14 @@ sqs --help
 usage: sqs --source=SOURCE --destination=DESTINATION [<flags>]
 
 Flags:
-  --help                     Show context-sensitive help (also try --help-long and --help-man).
-  -s, --source=SOURCE            Source queue to move messages from
-  -d, --destination=DESTINATION  Destination queue to move messages to
-  -p, --profile="default"        AWS Profile for source and destination queues
-  -r, --region="us-east-1"       AWS Region for source and destination queues
+    --help                         Show context-sensitive help (also try --help-long and --help-man).
+    -s, --source=SOURCE            Source queue to move messages from
+    -d, --destination=DESTINATION  Destination queue to move messages to
+    -p, --profile="default"        AWS Profile for source and destination queues
+    -r, --region="us-east-1"       AWS Region for source and destination queues
 ```
 
-Examples:
+### Examples:
 
 Region will default to `us-east-1`, you can also override it with `--region` flag.
 

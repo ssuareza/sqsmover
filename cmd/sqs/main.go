@@ -32,12 +32,6 @@ func main() {
 	kingpin.UsageTemplate(kingpin.CompactUsageTemplate)
 	kingpin.Parse()
 
-	// sess, err := session.NewSessionWithOptions(
-	// 	session.Options{
-	// 		Config:            aws.Config{Region: aws.String(*region)},
-	// 		SharedConfigState: session.SharedConfigEnable,
-	// 	},
-	// )
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Profile: *profile,
 		Config: aws.Config{
