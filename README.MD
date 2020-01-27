@@ -3,7 +3,29 @@ SQS Mover lets you move messages from one AWS SQS queue to another. Useful when 
 
 ## Installation
 
-In progress...
+### MAC:
+```
+brew tap ssuareza/brew git@github.com:ssuareza/homebrew-brew
+brew install ssuareza/brew/sqs -f
+```
+
+### Linux:
+```
+curl -sLo sqs curl -sLo sqs https://github.com/ssuareza/sqsmover/releases/download/v0.0.1/sqs-v0.0.1-linux-amd64
+chmod +x sqs
+sudo mv sqs /usr/local/bin/
+```
+
+## Upgrade
+
+### MAC:
+```
+brew update
+brew upgrade ssuareza/brew/sqs -f
+```
+
+### Linux:
+Follow installation steps.
 
 ## Usage
 ```
