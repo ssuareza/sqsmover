@@ -47,26 +47,26 @@ func main() {
 
 	svc := sqs.New(sess)
 
-	err, sourceQueueUrl := resolveQueueUrl(svc, *sourceQueue)
+	sourceQueueURL, err := resolveQueueURL(svc, *sourceQueue)
 
 	if err != nil {
 		logAwsError("Failed to resolve source queue", err)
 		return
 	}
 
-	log.Info(color.New(color.FgCyan).Sprintf("Source queue url: %s", sourceQueueUrl))
+	log.Info(color.New(color.FgCyan).Sprintf("Source queue URL: %s", sourceQueueURL))
 
-	err, destinationQueueUrl := resolveQueueUrl(svc, *destinationQueue)
+	destinationQueueURL, err := resolveQueueURL(svc, *destinationQueue)
 
 	if err != nil {
 		logAwsError("Failed to resolve destination queue", err)
 		return
 	}
 
-	log.Info(color.New(color.FgCyan).Sprintf("Destination queue url: %s", destinationQueueUrl))
+	log.Info(color.New(color.FgCyan).Sprintf("Destination queue URL: %s", destinationQueueURL))
 
 	queueAttributes, err := svc.GetQueueAttributes(&sqs.GetQueueAttributesInput{
-		QueueUrl:       aws.String(sourceQueueUrl),
+		QueueUrl:       aws.String(sourceQueueURL),
 		AttributeNames: []*string{aws.String("All")},
 	})
 
@@ -80,21 +80,21 @@ func main() {
 		return
 	}
 
-	moveMessages(sourceQueueUrl, destinationQueueUrl, svc, numberOfMessages)
+	moveMessages(sourceQueueURL, destinationQueueURL, svc, numberOfMessages)
 
 }
 
-func resolveQueueUrl(svc *sqs.SQS, queueName string) (error, string) {
+func resolveQueueURL(svc *sqs.SQS, queueName string) (string, error) {
 	params := &sqs.GetQueueUrlInput{
 		QueueName: aws.String(queueName),
 	}
 	resp, err := svc.GetQueueUrl(params)
 
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	return nil, *resp.QueueUrl
+	return *resp.QueueUrl, nil
 }
 
 func logAwsError(message string, err error) {
@@ -129,9 +129,9 @@ func convertSuccessfulMessageToBatchRequestEntry(messages []*sqs.Message) []*sqs
 	return result
 }
 
-func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQS, numberOfMessages int) {
+func moveMessages(sourceQueueURL string, destinationQueueURL string, svc *sqs.SQS, numberOfMessages int) {
 	params := &sqs.ReceiveMessageInput{
-		QueueUrl:            aws.String(sourceQueueUrl),
+		QueueUrl:            aws.String(sourceQueueURL),
 		VisibilityTimeout:   aws.Int64(2),
 		WaitTimeSeconds:     aws.Int64(0),
 		MaxNumberOfMessages: aws.Int64(10),
@@ -170,7 +170,7 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		}
 
 		batch := &sqs.SendMessageBatchInput{
-			QueueUrl: aws.String(destinationQueueUrl),
+			QueueUrl: aws.String(destinationQueueURL),
 			Entries:  convertToEntries(resp.Messages),
 		}
 
@@ -189,7 +189,7 @@ func moveMessages(sourceQueueUrl string, destinationQueueUrl string, svc *sqs.SQ
 		if len(sendResp.Successful) == len(resp.Messages) {
 			deleteMessageBatch := &sqs.DeleteMessageBatchInput{
 				Entries:  convertSuccessfulMessageToBatchRequestEntry(resp.Messages),
-				QueueUrl: aws.String(sourceQueueUrl),
+				QueueUrl: aws.String(sourceQueueURL),
 			}
 
 			deleteResp, err := svc.DeleteMessageBatch(deleteMessageBatch)
